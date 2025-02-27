@@ -8,7 +8,8 @@ def send_sns_message(topic_arn, message, subject=None):
     :param message: The message to send.
     :param subject: The subject of the message (optional).
     """
-    sns_client = boto3.client('sns')
+    session = boto3.Session(profile_name='AWSAdministratorAccessPersonal', region_name='us-east-1')
+    sns_client = session.client('sns')
     
     response = sns_client.publish(
         TopicArn=topic_arn,

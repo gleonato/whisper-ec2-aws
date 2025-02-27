@@ -19,7 +19,7 @@ count = 0
 bucket_name = "whisper-gus"
 audio_dir = "audio-files/"
 output_file = "output/transcription-all.txt"
-sns_topic_arn = "arn:aws:sns:us-east-1:123456789012:sms_notification_topic"  # Replace with your actual SNS topic ARN
+sns_topic_arn = "arn:aws:sns:us-east-1:437930410990:sms_notification_topic"  # Replace with your actual SNS topic ARN
 
 # List all audio files in the S3 bucket directory
 print(f"Listing audio files in S3 bucket '{bucket_name}' with prefix '{audio_dir}'...")
@@ -79,7 +79,8 @@ for audio_file in audio_files:
     print(f"{count} Transcription for {audio_file} written to {output_file}")
 
     # Send SNS notification
-    message = f"Transcription for {audio_file} completed. Detected language: {detected_language}."
+    print(f"Sending SNS notification for {audio_file}...")
+    message = f"Transcription {count} for {audio_file} completed. Detected language: {detected_language}."
     send_sns_message(sns_topic_arn, message, subject="Transcription Completed")
 
     # Clean up the temporary file
