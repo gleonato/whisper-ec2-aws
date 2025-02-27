@@ -1,1 +1,1 @@
-# whisper-ec2-aws
+# whisper on aws
