@@ -78,10 +78,11 @@ for audio_file in audio_files:
     count += 1
     print(f"{count} Transcription for {audio_file} written to {output_file}")
 
-    # Send SNS notification
-    print(f"Sending SNS notification for {audio_file}...")
-    message = f"Transcription {count} for {audio_file} completed. Detected language: {detected_language}."
-    send_sns_message(sns_topic_arn, message, subject="Transcription Completed")
+    # Send SNS notification every 100 files
+    if count % 100 == 0:
+        print(f"Sending SNS notification for {count} files processed...")
+        message = f"Transcription for {count} files completed. Last processed file: {audio_file}. Detected language: {detected_language}."
+        send_sns_message(sns_topic_arn, message, subject="Transcription Batch Completed")
 
     # Clean up the temporary file
     os.remove(temp_audio_file_path)
