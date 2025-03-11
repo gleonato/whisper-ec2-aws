@@ -4,6 +4,7 @@ import boto3
 from io import BytesIO
 import tempfile
 from push import send_sns_message
+from transcription_to_txt import update_chat_with_transcription
 
 # Initialize the S3 client
 print("Initializing S3 client...")
@@ -73,10 +74,13 @@ for audio_file in audio_files:
     except s3.exceptions.NoSuchKey:
         output_data = ""
     output_data += f"Transcription for {audio_file}:\n{result.text}\n\n"
-    
+
     s3.put_object(Bucket=bucket_name, Key=output_file, Body=output_data.encode('utf-8'))
     count += 1
     print(f"{count} Transcription for {audio_file} written to {output_file}")
+
+    # Update chat.txt with the transcription
+    update_chat_with_transcription(audio_file, result.text)
 
     # Send SNS notification every 100 files
     if count % 100 == 0:
