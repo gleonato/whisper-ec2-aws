@@ -15,7 +15,7 @@ nohup python $SCRIPT_PATH > $LOG_FILE 2>&1 &
 
 # Save the process ID
 PID=$!
-echo $PID > /home/ec2-user/whisper_pid.txt
+echo $PID > /home/ec2-user/whisper-ec2-aws/log/whisper_pid.txt
 
 echo "Process started with PID $PID"
 echo "To monitor the logs in real-time, run: tail -f $LOG_FILE"
