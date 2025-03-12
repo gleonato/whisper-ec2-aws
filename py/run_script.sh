@@ -1,8 +1,22 @@
 #!/bin/bash
 
-# Shell to run on ec2 instance
-# This script will run the python script whisper_bulk_aws.py and log the output to output.log
-nohup python /home/ec2-user/whisper-ec2-aws/py/whisper_bulk_aws.py > output.log 2>&1 &
+# Set log file with timestamp
+LOG_FILE="/home/ec2-user/whisper_output_$(date +%Y%m%d_%H%M%S).log"
+SCRIPT_PATH="/home/ec2-user/whisper-ec2-aws/py/run_whisper_bulk_aws.py"
 
-# Print the process ID so you can monitor or kill it later
-echo "Process started with PID $!"
+echo "Starting Whisper transcription process..."
+echo "Logs will be written to: $LOG_FILE"
+
+# Activate conda environment if needed
+# source /home/ec2-user/miniconda3/bin/activate whisper_env
+
+# Run the script in the background with proper output redirection
+nohup python $SCRIPT_PATH > $LOG_FILE 2>&1 &
+
+# Save the process ID
+PID=$!
+echo $PID > /home/ec2-user/whisper_pid.txt
+
+echo "Process started with PID $PID"
+echo "To monitor the logs in real-time, run: tail -f $LOG_FILE"
+echo "To stop the process, run: kill $PID"
