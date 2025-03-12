@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Set log file with timestamp
-LOG_FILE="/home/ec2-user/whisper_output_$(date +%Y%m%d_%H%M%S).log"
+LOG_FILE="/home/ec2-user/whisper-ec2-aws/log/whisper_output_$(date +%Y%m%d_%H%M%S).log"
 SCRIPT_PATH="/home/ec2-user/whisper-ec2-aws/py/run_whisper_bulk_aws.py"
 
 echo "Starting Whisper transcription process..."

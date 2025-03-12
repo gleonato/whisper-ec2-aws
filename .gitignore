@@ -6,3 +6,4 @@ chat_txt_output.txt
 transcription_progress.json
 .DS_Store
 py/__pycache__/*
+/log/*
