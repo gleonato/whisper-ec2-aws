@@ -1,5 +1,7 @@
-import whisper
 import os
+os.environ["CUDA_VISIBLE_DEVICES"] = "-1" # Force CPU usage
+
+import whisper
 import boto3
 from io import BytesIO
 import tempfile
@@ -13,7 +15,9 @@ session = boto3.Session(profile_name='AWSAdministratorAccessPersonal')
 s3 = session.client('s3')
 
 print("Loading Whisper model...")
-model = whisper.load_model("turbo")
+# model = whisper.load_model("turbo") # Load the turbo model
+# Change from "turbo" to a smaller model
+model = whisper.load_model("medium")  # or "tiny" or "small"
 count = 0
 
 # S3 bucket and directories
