@@ -50,3 +50,13 @@ Miniconda is a minimal installer for conda, a package manager, and environment m
    ```
 
 Your environment is now set up and ready to use the Whisper on AWS framework.
+
+export from whatsapp
+
+g5g.xlarge
+
+files to be deleted:
+output/transcription-all.txt
+output/chat_txt_output.txt
+
+py/transcription_progress.json

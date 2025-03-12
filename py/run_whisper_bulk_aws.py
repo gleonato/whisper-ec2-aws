@@ -1,6 +1,5 @@
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] = "-1" # Force CPU usage
-
+import json
 import whisper
 import boto3
 from io import BytesIO
@@ -15,10 +14,10 @@ session = boto3.Session(profile_name='AWSAdministratorAccessPersonal')
 s3 = session.client('s3')
 
 print("Loading Whisper model...")
-# model = whisper.load_model("turbo") # Load the turbo model
+# model references here: https://github.com/openai/whisper
+model = whisper.load_model("turbo") # Load the turbo model
 # Change from "turbo" to a smaller model
-model = whisper.load_model("medium")  # or "tiny" or "small"
-count = 0
+# model = whisper.load_model("medium")  # or "tiny" or "small" and "medium" 
 
 # S3 bucket and directories
 bucket_name = "whisper-gus"
@@ -26,15 +25,33 @@ audio_dir = "audio-files/"
 output_file = "output/transcription-all.txt"
 sns_topic_arn = "arn:aws:sns:us-east-1:437930410990:sms_notification_topic"  # Replace with your actual SNS topic ARN
 
-# List all audio files in the S3 bucket directory
+# Load the progress file if it exists
+progress_file = "transcription_progress.json"
+if os.path.exists(progress_file):
+    with open(progress_file, "r") as f:
+        progress = json.load(f)
+    count = progress.get("count", 0)
+    processed_files = set(progress.get("processed_files", []))
+else:
+    count = 0
+    processed_files = set()
+
+# List all audio files in the S3 bucket directory with pagination
 print(f"Listing audio files in S3 bucket '{bucket_name}' with prefix '{audio_dir}'...")
-response = s3.list_objects_v2(Bucket=bucket_name, Prefix=audio_dir)
-audio_files = [item['Key'] for item in response.get('Contents', []) if item['Key'].endswith(".opus")]
+audio_files = []
+paginator = s3.get_paginator('list_objects_v2')
+page_iterator = paginator.paginate(Bucket=bucket_name, Prefix=audio_dir)
+
+for page in page_iterator:
+    if 'Contents' in page:
+        audio_files.extend([item['Key'] for item in page['Contents'] if item['Key'].endswith(".opus")])
 
 print(f"Found {len(audio_files)} audio files.")
 
 # Iterate over all audio files in the S3 bucket directory
 for audio_file in audio_files:
+    if audio_file in processed_files:
+        continue
     print(f"Processing file: {audio_file}")
 
     # Load audio from S3
@@ -84,10 +101,10 @@ for audio_file in audio_files:
     print(f"{count} Transcription for {audio_file} written to {output_file}")
 
     # Update chat.txt with the transcription
-    update_chat_with_transcription(audio_file, result.text)
+    update_chat_with_transcription(audio_file, result.text, s3_client=s3)
 
-    # Send SNS notification every 100 files
-    if count % 100 == 0:
+    # Send SNS notification every 1000 files
+    if count % 1000 == 0:
         print(f"Sending SNS notification for {count} files processed...")
         message = f"Transcription for {count} files completed. Last processed file: {audio_file}. Detected language: {detected_language}."
         send_sns_message(sns_topic_arn, message, subject="Transcription Batch Completed")
@@ -95,4 +112,13 @@ for audio_file in audio_files:
     # Clean up the temporary file
     os.remove(temp_audio_file_path)
 
+    # Update the progress file
+    processed_files.add(audio_file)
+    with open(progress_file, "w") as f:
+        json.dump({"count": count, "processed_files": list(processed_files)}, f)
+
+# After the loop ends, add completion notification
 print("Processing complete.")
+final_message = f"Transcription processing completed. Total files processed: {count}. Final file: {audio_file if count > 0 else 'None'}."
+print(f"Sending final completion notification...")
+send_sns_message(sns_topic_arn, final_message, subject="Transcription Processing Complete")
