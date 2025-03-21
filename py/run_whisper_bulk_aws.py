@@ -7,6 +7,9 @@ import tempfile
 from push import send_sns_message
 from transcription_to_txt import update_chat_with_transcription
 
+# Unset the environment variable MallocStackLogging to avoid memory issues
+os.environ['MallocStackLogging'] = '0'
+
 # Initialize the S3 client
 print("Initializing S3 client...")
 # Specify the profile name
@@ -15,9 +18,9 @@ s3 = session.client('s3')
 
 print("Loading Whisper model...")
 # model references here: https://github.com/openai/whisper
-model = whisper.load_model("turbo") # Load the turbo model
+# model = whisper.load_model("turbo") # Load the turbo model
 # Change from "turbo" to a smaller model
-# model = whisper.load_model("medium")  # or "tiny" or "small" and "medium" 
+model = whisper.load_model("medium")  # or "tiny" or "small" and "medium" 
 
 # S3 bucket and directories
 bucket_name = "whisper-gus"
@@ -98,7 +101,7 @@ for audio_file in audio_files:
 
     s3.put_object(Bucket=bucket_name, Key=output_file, Body=output_data.encode('utf-8'))
     count += 1
-    print(f"{count} Transcription for {audio_file} written to {output_file}")
+    print(f"{count}/{len(audio_files)} Transcription for {audio_file} written to {output_file}")
 
     # Update chat.txt with the transcription
     update_chat_with_transcription(audio_file, result.text, s3_client=s3)
@@ -106,7 +109,7 @@ for audio_file in audio_files:
     # Send SNS notification every 1000 files
     if count % 1000 == 0:
         print(f"Sending SNS notification for {count} files processed...")
-        message = f"Transcription for {count} files completed. Last processed file: {audio_file}. Detected language: {detected_language}."
+        message = f"Transcription for {count}/{len(audio_files)} files completed. Last processed file: {audio_file}. Detected language: {detected_language}."
         send_sns_message(sns_topic_arn, message, subject="Transcription Batch Completed")
 
     # Clean up the temporary file
