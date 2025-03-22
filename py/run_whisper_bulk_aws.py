@@ -24,8 +24,8 @@ model = whisper.load_model("medium")  # or "tiny" or "small" and "medium"
 
 # S3 bucket and directories
 bucket_name = "whisper-gus"
-audio_dir = "audio-files/"
-output_file = "output/transcription-all.txt"
+audio_dir = "autos/audio-files/"
+output_file = "autos/output/transcription-all.txt"
 sns_topic_arn = "arn:aws:sns:us-east-1:437930410990:sms_notification_topic"  # Replace with your actual SNS topic ARN
 
 # Load the progress file if it exists
@@ -107,7 +107,7 @@ for audio_file in audio_files:
     update_chat_with_transcription(audio_file, result.text, s3_client=s3)
 
     # Send SNS notification every 1000 files
-    if count % 1000 == 0:
+    if count % 50 == 0:
         print(f"Sending SNS notification for {count} files processed...")
         message = f"Transcription for {count}/{len(audio_files)} files completed. Last processed file: {audio_file}. Detected language: {detected_language}."
         send_sns_message(sns_topic_arn, message, subject="Transcription Batch Completed")
@@ -124,4 +124,5 @@ for audio_file in audio_files:
 print("Processing complete.")
 final_message = f"Transcription processing completed. Total files processed: {count}. Final file: {audio_file if count > 0 else 'None'}."
 print(f"Sending final completion notification...")
+count=0
 send_sns_message(sns_topic_arn, final_message, subject="Transcription Processing Complete")

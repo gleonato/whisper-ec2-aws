@@ -1,7 +1,26 @@
 # Whisper on AWS
 
 ## Overview
-Whisper on AWS is a framework designed to facilitate the transcription of audio files using OpenAI's Whisper model on AWS infrastructure. This setup allows for scalable and efficient processing of large batches of audio files.
+Whisper on AWS is a framework designed to facilitate the transcription of audio files using OpenAI's Whisper model on AWS infrastructure. This setup allows for scalable and efficient processing of large batches of audio files. It uses OPEN-AI Whisper general-purpose speech recognition. https://github.com/openai/whisper
+
+## Whatsapp export
+
+Export the entire whatsapp chat (INCLUDING MEDIA) and save it;
+
+unzip and move all audio files (*.OPUS) to a foldew (i.e /audio-files)
+
+move also the .txt file and saive it WhatsApp Chat with XXXXX for instance; This is going to be used so input the trasncriptions in the future;
+
+para usar o s3: 
+
+crie uma estrutura de diretorios
+
+audio-files/
+input/
+input/chat.txt
+output/
+
+
 
 ## Setup Instructions
 
@@ -51,12 +70,12 @@ Miniconda is a minimal installer for conda, a package manager, and environment m
 
 Your environment is now set up and ready to use the Whisper on AWS framework.
 
-export from whatsapp
 
-g5g.xlarge
 
-files to be deleted:
+
+s3 files to be deleted:
 output/transcription-all.txt
 output/chat_txt_output.txt
 
+local file:
 py/transcription_progress.json

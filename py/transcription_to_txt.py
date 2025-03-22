@@ -21,8 +21,8 @@ def update_chat_with_transcription(audio_file, output_data, s3_client=None):
 
     # Define S3 paths
     bucket_name = "whisper-gus"
-    chat_file_key = "input/chat.txt"
-    output_file_key = "output/chat_txt_output.txt"
+    chat_file_key = "autos/input/Autos-chat.txt"
+    output_file_key = "autos/output/chat_txt_output.txt"
 
     # Read the chat.txt file from S3
     try:
